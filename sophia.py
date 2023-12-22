@@ -191,10 +191,10 @@ def _single_tensor_sophiag(params: List[Tensor],
             step_size_neg = step_size.neg()
 
             ratio = (exp_avg.abs() / (rho * bs * hess + 1e-15)).clamp(None, 1)
-            param.addcmul_(exp_avg.sign(), ratio, value=step_size_neg)
+            #param.addcmul_(exp_avg.sign(), ratio, value=step_size_neg)
         else:
             step = step_t.item()
             step_size_neg = - lr
 
             ratio = (exp_avg.abs() / (rho * bs * hess + 1e-15)).clamp(None, 1)
-            param.addcmul_(exp_avg.sign(), ratio, value=step_size_neg)
+            #param.addcmul_(exp_avg.sign(), ratio, value=step_size_neg)
