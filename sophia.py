@@ -3,7 +3,7 @@ import torch
 from torch import Tensor
 from torch.optim.optimizer import Optimizer
 from typing import List, Optional
-
+import copy
 
 class SophiaG(Optimizer):
     def __init__(self, params, lr=1e-4, betas=(0.965, 0.99), rho=0.04,
@@ -22,6 +22,8 @@ class SophiaG(Optimizer):
         defaults = dict(lr=lr, betas=betas, rho=rho,
                         weight_decay=weight_decay,
                         maximize=maximize, capturable=capturable)
+        self.m = []
+        self.h = []
         super(SophiaG, self).__init__(params, defaults)
 
     def __setstate__(self, state):
@@ -54,6 +56,10 @@ class SophiaG(Optimizer):
                     state['hessian'] = torch.zeros_like(p, memory_format=torch.preserve_format)
 
                 state['hessian'].mul_(beta2).addcmul_(p.grad, p.grad, value=1 - beta2)
+
+    @torch.no_grad()
+    def get_m_h(self):
+        return self.m, self.h
 
     @torch.no_grad()
     def step(self, closure=None, bs=5120):
@@ -109,6 +115,9 @@ class SophiaG(Optimizer):
                     weight_decay=group['weight_decay'],
                     maximize=group['maximize'],
                     capturable=group['capturable'])
+
+            self.m = copy.deepcopy(exp_avgs)
+            self.h = copy.deepcopy(hessian)
 
         return loss
 

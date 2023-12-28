@@ -19,12 +19,13 @@ class MLP(nn.Module):
 
     def __init__(self, input, output, bias=False):
         super().__init__()
-        self.c_fc = nn.Linear(input, output, bias=bias)
+        self.c_fc = nn.Linear(input, input // 2, bias=bias)
+        self.c_fc2 = nn.Linear(input // 2, output, bias=bias)
         self.loss = torch.nn.CrossEntropyLoss()
 
 
     def forward(self, x, targets=None):
-        logits = self.c_fc(x)
+        logits = self.c_fc2(self.c_fc(x))
 
         if targets is not None:
             # if we are given some desired targets also calculate the loss
@@ -39,9 +40,5 @@ class MLP(nn.Module):
 
         return logits, loss
 
-
-
-
-        return x
 
 
